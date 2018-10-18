@@ -8,7 +8,7 @@ import (
 	"github.com/cookiejars/cookiejar/mock"
 )
 
-func TestCookieJar_Start(t *testing.T) {
+func TestCookieJar(t *testing.T) {
 	t.Parallel()
 
 	var fetchResult []cookiejar.Cookie
@@ -29,6 +29,13 @@ func TestCookieJar_Start(t *testing.T) {
 			return fetchResult, nil
 		},
 	}
+	mockBackoff := &mock.Backoff{
+		NextFn: func() {},
+		CurrentFn: func() time.Duration {
+			return time.Millisecond
+		},
+		ResetFn: func() {},
+	}
 
 	digestFn := func(cookie cookiejar.Cookie) error {
 		got, err := cookie.Content()
@@ -39,7 +46,7 @@ func TestCookieJar_Start(t *testing.T) {
 		return nil
 	}
 
-	d := cookiejar.NewDigester(1, mockJar, cookiejar.ConstantBackoff(time.Millisecond))
+	d := cookiejar.NewDigester(1, mockJar, mockBackoff)
 	err := d.Start(digestFn)
 	assertNil(t, err)
 
@@ -49,6 +56,9 @@ func TestCookieJar_Start(t *testing.T) {
 	assertTrue(t, mockCookie.ContentInvoked)
 	assertTrue(t, mockCookie.DeleteInvoked)
 	assertTrue(t, mockJar.FetchInvoked)
+	assertTrue(t, mockBackoff.NextInvoked)
+	assertTrue(t, mockBackoff.CurrentInvoked)
+	assertTrue(t, mockBackoff.ResetInvoked)
 }
 
 func assertEqual(t *testing.T, expected, got interface{}) {
