@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-const errAlreadyRunning = "digester is already running"
-
 type Cookie interface {
 	Content() ([]byte, error)
 	Delete() error
@@ -23,6 +21,7 @@ type DigestFn func(cookie Cookie) error
 
 type Digester interface {
 	Start(fn DigestFn, signals ...os.Signal) error
+	Stop()
 }
 
 type digester struct {
@@ -45,7 +44,7 @@ func NewDigester(workers int, jar Jar, backoff Backoff) Digester {
 
 func (d *digester) Start(fn DigestFn, signals ...os.Signal) error {
 	if d.running {
-		return errors.New(errAlreadyRunning)
+		return errors.New("digester is already running")
 	}
 
 	d.running = true
@@ -54,11 +53,16 @@ func (d *digester) Start(fn DigestFn, signals ...os.Signal) error {
 
 	if len(signals) > 0 {
 		d.waitForSignal(signals...)
+		d.Stop()
 	}
 
-	d.stop()
-
 	return nil
+}
+
+func (d *digester) Stop() {
+	d.running = false
+	close(d.workChan)
+	d.wg.Wait()
 }
 
 func (d *digester) startWorkers(fn DigestFn) {
@@ -79,6 +83,7 @@ func (d *digester) startWorkers(fn DigestFn) {
 			}
 		}
 	}
+
 	for i := 0; i < d.workers; i++ {
 		go work()
 	}
@@ -122,10 +127,4 @@ func (d *digester) waitForSignal(signals ...os.Signal) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, signals...)
 	<-c
-}
-
-func (d *digester) stop() {
-	d.running = false
-	close(d.workChan)
-	d.wg.Wait()
 }

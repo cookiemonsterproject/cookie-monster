@@ -41,9 +41,3 @@ func TestExponentialBackoff(t *testing.T) {
 	b.Reset()
 	assertEqual(t, b.Current(), time.Duration(0))
 }
-
-func assertEqual(t *testing.T, expected, got interface{}) {
-	if expected != got {
-		t.Errorf("expected %v, got %v", expected, got)
-	}
-}
