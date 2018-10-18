@@ -47,6 +47,8 @@ func (d *digester) Start(fn DigestFn, signals ...os.Signal) error {
 		d.waitForSignal(signals...)
 	}
 
+	d.stop()
+
 	return nil
 }
 
@@ -111,6 +113,12 @@ func (d *digester) waitForSignal(signals ...os.Signal) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, signals...)
 	<-c
+}
+
+func (d *digester) stop() {
+	d.running = false
+	close(d.workChan)
+	d.wg.Wait()
 }
 
 type Cookie interface {
