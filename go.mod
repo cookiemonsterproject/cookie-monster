@@ -1,1 +1,1 @@
-module github.com/jmdalmeida/cookiejar
+module github.com/cookiejars/cookiejar

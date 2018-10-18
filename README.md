@@ -1,3 +1,3 @@
 # CookieJar
 
-[![Build Status](https://travis-ci.org/jmdalmeida/cookiejar.svg?branch=master)](https://travis-ci.org/jmdalmeida/cookiejar)
+[![Build Status](https://travis-ci.org/cookiejars/cookiejar.svg?branch=master)](https://travis-ci.org/cookiejars/cookiejar)
