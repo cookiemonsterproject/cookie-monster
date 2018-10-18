@@ -10,6 +10,15 @@ import (
 
 const errAlreadyRunning = "digester is already running"
 
+type Cookie interface {
+	Content() ([]byte, error)
+	Delete() error
+}
+
+type Jar interface {
+	Fetch() ([]Cookie, error)
+}
+
 type DigestFn func(cookie Cookie) error
 
 type Digester interface {
@@ -119,13 +128,4 @@ func (d *digester) stop() {
 	d.running = false
 	close(d.workChan)
 	d.wg.Wait()
-}
-
-type Cookie interface {
-	Content() ([]byte, error)
-	Delete() error
-}
-
-type Jar interface {
-	Fetch() ([]Cookie, error)
 }
