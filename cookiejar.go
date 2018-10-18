@@ -100,7 +100,7 @@ func (d *digester) startOrchestrator() {
 					continue
 				}
 
-				if cc == nil {
+				if cc == nil || len(cc) == 0 {
 					d.backoff.Next()
 
 					continue
