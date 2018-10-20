@@ -26,7 +26,7 @@ type Digester interface {
 
 type digester struct {
 	workers  int
-	workChan chan Cookie
+	workChan chan []Cookie
 	jar      Jar
 	backoff  Backoff
 	running  bool
@@ -36,7 +36,7 @@ type digester struct {
 func NewDigester(workers int, jar Jar, backoff Backoff) Digester {
 	return &digester{
 		workers:  workers,
-		workChan: make(chan Cookie, workers),
+		workChan: make(chan []Cookie, workers),
 		jar:      jar,
 		backoff:  backoff,
 	}
@@ -71,15 +71,17 @@ func (d *digester) startWorkers(fn DigestFn) {
 	work := func() {
 		defer d.wg.Done()
 
-		for c := range d.workChan {
-			if err := fn(c); err != nil {
-				// todo: send to error channel
+		for cc := range d.workChan {
+			for _, c := range cc {
+				if err := fn(c); err != nil {
+					// todo: send to error channel
 
-				continue
-			}
+					continue
+				}
 
-			if err := c.Delete(); err != nil {
-				// todo: send to error channel
+				if err := c.Delete(); err != nil {
+					// todo: send to error channel
+				}
 			}
 		}
 	}
@@ -113,9 +115,7 @@ func (d *digester) startOrchestrator() {
 
 				d.backoff.Reset()
 
-				for _, c := range cc {
-					d.workChan <- c
-				}
+				d.workChan <- cc
 			}
 		}
 	}
