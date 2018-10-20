@@ -31,6 +31,7 @@ type digester struct {
 	backoff  Backoff
 	running  bool
 	wg       sync.WaitGroup
+	mux      sync.Mutex
 }
 
 func NewDigester(workers int, jar Jar, backoff Backoff) Digester {
@@ -43,6 +44,9 @@ func NewDigester(workers int, jar Jar, backoff Backoff) Digester {
 }
 
 func (d *digester) Start(fn DigestFn, signals ...os.Signal) error {
+	d.mux.Lock()
+	defer d.mux.Unlock()
+
 	if d.running {
 		return errors.New("digester is already running")
 	}
@@ -52,7 +56,7 @@ func (d *digester) Start(fn DigestFn, signals ...os.Signal) error {
 	d.startOrchestrator()
 
 	if len(signals) > 0 {
-		d.waitForSignal(signals...)
+		d.waitForSignals(signals...)
 		d.Stop()
 	}
 
@@ -60,6 +64,9 @@ func (d *digester) Start(fn DigestFn, signals ...os.Signal) error {
 }
 
 func (d *digester) Stop() {
+	d.mux.Lock()
+	defer d.mux.Unlock()
+
 	d.running = false
 	close(d.workChan)
 	d.wg.Wait()
@@ -123,7 +130,7 @@ func (d *digester) startOrchestrator() {
 	go orchestrate()
 }
 
-func (d *digester) waitForSignal(signals ...os.Signal) {
+func (d *digester) waitForSignals(signals ...os.Signal) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, signals...)
 	<-c
