@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -27,31 +28,37 @@ type Digester interface {
 type digester struct {
 	workers  int
 	workChan chan []Cookie
-	jar      Jar
-	backoff  Backoff
-	running  bool
-	wg       sync.WaitGroup
-	mux      sync.Mutex
+
+	jar     Jar
+	backoff Backoff
+
+	running        atomic.Value
+	workersWG      sync.WaitGroup
+	orchestratorWG sync.WaitGroup
+	mux            sync.Mutex
 }
 
 func NewDigester(workers int, jar Jar, backoff Backoff) Digester {
-	return &digester{
+	d := &digester{
 		workers:  workers,
 		workChan: make(chan []Cookie, workers),
 		jar:      jar,
 		backoff:  backoff,
 	}
+	d.running.Store(false)
+
+	return d
 }
 
 func (d *digester) Start(fn DigestFn, signals ...os.Signal) error {
 	d.mux.Lock()
 	defer d.mux.Unlock()
 
-	if d.running {
+	if d.isRunning() {
 		return errors.New("digester is already running")
 	}
 
-	d.running = true
+	d.running.Store(true)
 	d.startWorkers(fn)
 	d.startOrchestrator()
 
@@ -67,16 +74,17 @@ func (d *digester) Stop() {
 	d.mux.Lock()
 	defer d.mux.Unlock()
 
-	d.running = false
+	d.running.Store(false)
+	d.orchestratorWG.Wait()
 	close(d.workChan)
-	d.wg.Wait()
+	d.workersWG.Wait()
 }
 
 func (d *digester) startWorkers(fn DigestFn) {
-	d.wg.Add(d.workers)
+	d.workersWG.Add(d.workers)
 
 	work := func() {
-		defer d.wg.Done()
+		defer d.workersWG.Done()
 
 		for cc := range d.workChan {
 			for _, c := range cc {
@@ -99,12 +107,12 @@ func (d *digester) startWorkers(fn DigestFn) {
 }
 
 func (d *digester) startOrchestrator() {
-	d.wg.Add(1)
+	d.orchestratorWG.Add(1)
 
 	orchestrate := func() {
-		defer d.wg.Done()
+		defer d.orchestratorWG.Done()
 
-		for d.running {
+		for d.isRunning() {
 			select {
 			case <-time.After(d.backoff.Current()):
 				cc, err := d.jar.Fetch()
@@ -134,4 +142,8 @@ func (d *digester) waitForSignals(signals ...os.Signal) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, signals...)
 	<-c
+}
+
+func (d *digester) isRunning() bool {
+	return d.running.Load().(bool)
 }

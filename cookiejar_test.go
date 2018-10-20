@@ -1,6 +1,7 @@
 package cookiejar_test
 
 import (
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -11,22 +12,25 @@ import (
 func TestCookieJar(t *testing.T) {
 	t.Parallel()
 
-	var fetchResult []cookiejar.Cookie
+	var deleted atomic.Value
+	deleted.Store(false)
+
 	expectedContent := "test content"
 	mockCookie := &mock.Cookie{
 		ContentFn: func() ([]byte, error) {
 			return []byte(expectedContent), nil
 		},
 		DeleteFn: func() error {
-			fetchResult = []cookiejar.Cookie{}
-
+			deleted.Store(true)
 			return nil
 		},
 	}
-	fetchResult = []cookiejar.Cookie{mockCookie}
 	mockJar := &mock.Jar{
 		FetchFn: func() ([]cookiejar.Cookie, error) {
-			return fetchResult, nil
+			if deleted.Load().(bool) {
+				return []cookiejar.Cookie{}, nil
+			}
+			return []cookiejar.Cookie{mockCookie}, nil
 		},
 	}
 	mockBackoff := &mock.Backoff{

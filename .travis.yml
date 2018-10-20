@@ -1,3 +1,4 @@
+# todo: add -race to test script
 language: go
 
 go:
