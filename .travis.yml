@@ -1,5 +1,17 @@
-# todo: add -race to test script
 language: go
 
 go:
   - "1.11.x"
+
+env:
+  - GO111MODULE=on
+
+git:
+  depth: 1
+
+before_script:
+  - go install -mod vendor github.com/golangci/golangci-lint/cmd/golangci-lint
+
+script:
+  - golangci-lint run
+  - go test -v -race ./...
