@@ -1,5 +1,9 @@
 package mock
 
+import "github.com/cookiejars/cookiejar"
+
+var _ cookiejar.Cookie = &Cookie{}
+
 type Cookie struct {
 	ContentFn      func() ([]byte, error)
 	ContentInvoked bool

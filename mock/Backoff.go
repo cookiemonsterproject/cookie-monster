@@ -1,6 +1,12 @@
 package mock
 
-import "time"
+import (
+	"time"
+
+	"github.com/cookiejars/cookiejar"
+)
+
+var _ cookiejar.Backoff = &Backoff{}
 
 type Backoff struct {
 	NextFn      func()
