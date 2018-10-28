@@ -66,5 +66,4 @@ This project aims to be generic and fit as much cases as possible. This will onl
 specific usecase to help identify where the project is still lacking.
 
 To ease discovery, I'd love to have [github.com/cookiejars](https://github.com/cookiejars) as the main place to go to
-find the existent implementations, so if you wish to contribute feel free to open an issue in the
-[CookieJar](https://github.com/cookiejars/cookiejar) project.
+find the existent implementations, so if you wish to contribute feel free to [open an issue](/issues/new).
