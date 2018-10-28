@@ -10,12 +10,12 @@ import (
 )
 
 type Cookie interface {
-	Content() ([]byte, error)
-	Delete() error
+	Content() (interface{}, error)
+	Done() error
 }
 
 type Jar interface {
-	Fetch() ([]Cookie, error)
+	Retrieve() ([]Cookie, error)
 }
 
 type DigestFn func(cookie Cookie) error
@@ -94,7 +94,7 @@ func (d *digester) startWorkers(fn DigestFn) {
 					continue
 				}
 
-				if err := c.Delete(); err != nil {
+				if err := c.Done(); err != nil {
 					// todo: send to error channel
 				}
 			}
@@ -115,7 +115,7 @@ func (d *digester) startOrchestrator() {
 		for d.isRunning() {
 			select {
 			case <-time.After(d.backoff.Current()):
-				cc, err := d.jar.Fetch()
+				cc, err := d.jar.Retrieve()
 				if err != nil {
 					// todo: send to error channel
 

@@ -5,11 +5,11 @@ import "github.com/cookiejars/cookiejar"
 var _ cookiejar.Jar = &Jar{}
 
 type Jar struct {
-	FetchFn      func() ([]cookiejar.Cookie, error)
-	FetchInvoked bool
+	RetrieveFn      func() ([]cookiejar.Cookie, error)
+	RetrieveInvoked bool
 }
 
-func (j *Jar) Fetch() ([]cookiejar.Cookie, error) {
-	j.FetchInvoked = true
-	return j.FetchFn()
+func (j *Jar) Retrieve() ([]cookiejar.Cookie, error) {
+	j.RetrieveInvoked = true
+	return j.RetrieveFn()
 }
