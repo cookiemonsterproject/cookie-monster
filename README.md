@@ -22,13 +22,13 @@ and the information needed to process that work, respectively.
    b) Implementing your own Jar. For this you'll need to create implementations that fit the Jar and Cookie interfaces.
 
    _Note: please consider sharing your implementation as an open-source project and help this baby grow
-   (check [Contributing](github.com/cookiejars/cookiejar#contributing))._
+   (check [Contributing](http://github.com/cookiejars/cookiejar#contributing))._
 
 3. Setup your backoff strategy which defines how the worker pool behaves in the interval of processing work, by either:
 
    a) Using the `ConstantBackoff` or `ExponentialBackoff` implementations provided.
 
-   b) Creating your own implementation that follows the `Backoff` interface.
+   b) Creating your own implementation that implements the `Backoff` interface.
 
 4. Initialize the pool:
 
@@ -41,7 +41,7 @@ and the information needed to process that work, respectively.
     Here you have to pass the function used to process the work, in the form of: `func(cookie cookiejar.Cookie) error`.
 
     Also, you can pass a list of `os.Signal` which will make the pool wait for to shutdown gracefully.
-    If you don't pass any signals the `Start` function will exit immediately, leaving the pool working on the
+    If you don't pass any signals the `Start` function will exit immediately, leaving the pool working in the
     background. It will be up to you to define how to wait for the work to be complete and
     call `digester.Stop()` to stop the pool.
 
@@ -49,11 +49,22 @@ and the information needed to process that work, respectively.
     digester.Start(digestFn, signals...)
     ```
 
+6. Stop the pool (optional):
+
+    ```golang
+    digester.Stop()
+    ```
+
+   If you didn't pass any signals to the `Start` function, you'll need to explicitly call the `Stop` function for the
+   pool to gracefully shutdown.
+
+   On the other hand, if you did pass them, this will be automatically called once any of them is triggered.
+
 ## Contributing
 
 This project aims to be generic and fit as much cases as possible. This will only be possible if you share your
 specific usecase to help identify where the project is still lacking.
 
-I'd love to have [github.com/cookiejars](https://github.com/cookiejars) as the main place to go to find the existent
-implementations, so if you wish to contribute feel free to get in touch with me by opening an issue in the
+To ease discovery, I'd love to have [github.com/cookiejars](https://github.com/cookiejars) as the main place to go to
+find the existent implementations, so if you wish to contribute feel free to open an issue in the
 [CookieJar](https://github.com/cookiejars/cookiejar) project.
