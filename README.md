@@ -22,7 +22,7 @@ and the information needed to process that work, respectively.
    b) Implementing your own Jar. For this you'll need to create implementations that fit the Jar and Cookie interfaces.
 
    _Note: please consider sharing your implementation as an open-source project and help this baby grow
-   (check [Contributing](http://github.com/cookiejars/cookiejar#contributing))._
+   (check [Contributing](#contributing))._
 
 3. Setup your backoff strategy which defines how the worker pool behaves in the interval of processing work, by either:
 
@@ -38,16 +38,16 @@ and the information needed to process that work, respectively.
 
 5. Start the pool:
 
+    ```golang
+    digester.Start(digestFn, signals...)
+    ```
+
     Here you have to pass the function used to process the work, in the form of: `func(cookie cookiejar.Cookie) error`.
 
     Also, you can pass a list of `os.Signal` which will make the pool wait for to shutdown gracefully.
     If you don't pass any signals the `Start` function will exit immediately, leaving the pool working in the
     background. It will be up to you to define how to wait for the work to be complete and
     call `digester.Stop()` to stop the pool.
-
-    ```golang
-    digester.Start(digestFn, signals...)
-    ```
 
 6. Stop the pool (optional):
 
