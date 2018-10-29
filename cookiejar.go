@@ -96,6 +96,8 @@ func (d *digester) startWorkers(fn DigestFn) {
 
 				if err := c.Done(); err != nil {
 					// todo: send to error channel
+
+					continue
 				}
 			}
 		}
@@ -112,26 +114,29 @@ func (d *digester) startOrchestrator() {
 	orchestrate := func() {
 		defer d.orchestratorWG.Done()
 
-		for d.isRunning() {
-			select {
-			case <-time.After(d.backoff.Current()):
-				cc, err := d.jar.Retrieve()
-				if err != nil {
-					// todo: send to error channel
-
-					continue
-				}
-
-				if cc == nil || len(cc) == 0 {
-					d.backoff.Next()
-
-					continue
-				}
-
-				d.backoff.Reset()
-
-				d.workChan <- cc
+		for {
+			if !d.isRunning() {
+				break
 			}
+
+			time.Sleep(d.backoff.Current())
+
+			cc, err := d.jar.Retrieve()
+			if err != nil {
+				// todo: send to error channel
+
+				continue
+			}
+
+			if len(cc) == 0 {
+				d.backoff.Next()
+
+				continue
+			}
+
+			d.backoff.Reset()
+
+			d.workChan <- cc
 		}
 	}
 
