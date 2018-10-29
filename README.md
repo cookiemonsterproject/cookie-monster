@@ -23,7 +23,18 @@ and the information needed to process that work, respectively.
 
    b) Implementing your own Jar. For this you'll need to create implementations that fit the Jar and Cookie interfaces.
 
-   _Note: please consider sharing your implementation as an open-source project and help this baby grow
+   ```golang
+   type Jar interface {
+        Retrieve() ([]Cookie, error) // generate work to distribute amongst the various workers
+   }
+
+   type Cookie interface {
+        Content() (interface{}, error) // provide information needed to process the work
+        Done() error // mark the work as done (e.g., delete a message from a queue after it's been processed)
+   }
+   ```
+
+   _Please consider sharing your implementation as an open-source project and help this baby grow
    (check [Contributing](#contributing))._
 
 3. Setup your backoff strategy which defines how the worker pool behaves in the interval of processing work, by either:
