@@ -12,25 +12,22 @@ import (
 func TestCookieJar(t *testing.T) {
 	t.Parallel()
 
-	var deleted atomic.Value
-	deleted.Store(false)
-
 	expectedContent := "test content"
 	mockCookie := &mock.Cookie{
 		ContentFn: func() (interface{}, error) {
 			return expectedContent, nil
 		},
-		DoneFn: func() error {
-			deleted.Store(true)
-			return nil
-		},
 	}
+
+	var cookies atomic.Value
+	cookies.Store([]cookiejar.Cookie{mockCookie})
 	mockJar := &mock.Jar{
 		RetrieveFn: func() ([]cookiejar.Cookie, error) {
-			if deleted.Load().(bool) {
-				return []cookiejar.Cookie{}, nil
-			}
-			return []cookiejar.Cookie{mockCookie}, nil
+			return cookies.Load().([]cookiejar.Cookie), nil
+		},
+		RetireFn: func(cookie cookiejar.Cookie) error {
+			cookies.Store([]cookiejar.Cookie{})
+			return nil
 		},
 	}
 	mockBackoff := &mock.Backoff{
@@ -58,8 +55,8 @@ func TestCookieJar(t *testing.T) {
 	d.Stop()
 
 	assertTrue(t, mockCookie.ContentInvoked)
-	assertTrue(t, mockCookie.DoneInvoked)
 	assertTrue(t, mockJar.RetrieveInvoked)
+	assertTrue(t, mockJar.RetireInvoked)
 	assertTrue(t, mockBackoff.NextInvoked)
 	assertTrue(t, mockBackoff.CurrentInvoked)
 	assertTrue(t, mockBackoff.ResetInvoked)

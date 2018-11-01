@@ -26,11 +26,11 @@ and the information needed to process that work, respectively.
    ```golang
    type Jar interface {
         Retrieve() ([]Cookie, error) // generate work to distribute amongst the various workers
+        Retire(Cookie) error // mark the work as done (e.g., delete a message from a queue after it's been processed)
    }
 
    type Cookie interface {
-        Content() (interface{}, error) // provide information needed to process the work
-        Done() error // mark the work as done (e.g., delete a message from a queue after it's been processed)
+        Content() (interface{}, error) // return metadata needed to process the work
    }
    ```
 

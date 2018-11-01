@@ -11,11 +11,11 @@ import (
 
 type Cookie interface {
 	Content() (interface{}, error)
-	Done() error
 }
 
 type Jar interface {
 	Retrieve() ([]Cookie, error)
+	Retire(cookie Cookie) error
 }
 
 type DigestFn func(cookie Cookie) error
@@ -26,12 +26,10 @@ type Digester interface {
 }
 
 type digester struct {
-	workers  int
-	workChan chan []Cookie
-
-	jar     Jar
-	backoff Backoff
-
+	workers        int
+	workChan       chan []Cookie
+	jar            Jar
+	backoff        Backoff
 	running        atomic.Value
 	workersWG      sync.WaitGroup
 	orchestratorWG sync.WaitGroup
@@ -94,7 +92,7 @@ func (d *digester) startWorkers(fn DigestFn) {
 					continue
 				}
 
-				if err := c.Done(); err != nil {
+				if err := d.jar.Retire(c); err != nil {
 					// todo: send to error channel
 
 					continue
