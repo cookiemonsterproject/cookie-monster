@@ -21,7 +21,6 @@ func ExponentialBackoff(n int, initialAmount time.Duration) Backoff {
 	for i := range ret {
 		if i == 0 {
 			ret[0] = 0
-
 			continue
 		}
 		ret[i] = next
@@ -35,8 +34,7 @@ type backoff struct {
 	index     int
 	len       int
 	intervals []time.Duration
-
-	mux sync.Mutex
+	mux       sync.Mutex
 }
 
 func (b *backoff) Next() {

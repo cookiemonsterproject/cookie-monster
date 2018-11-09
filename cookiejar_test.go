@@ -14,6 +14,9 @@ func TestCookieJar(t *testing.T) {
 
 	expectedContent := "test content"
 	mockCookie := &mock.Cookie{
+		IDFn: func() string {
+			return "test-cookie"
+		},
 		ContentFn: func() (interface{}, error) {
 			return expectedContent, nil
 		},
@@ -47,13 +50,14 @@ func TestCookieJar(t *testing.T) {
 		return nil
 	}
 
-	d := cookiejar.NewDigester(1, mockJar, mockBackoff)
+	d := cookiejar.NewDigester(mockJar, cookiejar.SetWorkers(1), cookiejar.SetBackoff(mockBackoff))
 	err := d.Start(digestFn)
 	assertNil(t, err)
 
 	time.Sleep(2 * time.Millisecond)
 	d.Stop()
 
+	assertTrue(t, mockCookie.IDInvoked)
 	assertTrue(t, mockCookie.ContentInvoked)
 	assertTrue(t, mockJar.RetrieveInvoked)
 	assertTrue(t, mockJar.RetireInvoked)

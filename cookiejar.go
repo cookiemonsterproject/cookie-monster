@@ -10,6 +10,7 @@ import (
 )
 
 type Cookie interface {
+	ID() string
 	Content() (interface{}, error)
 }
 
@@ -21,13 +22,16 @@ type Jar interface {
 type DigestFn func(cookie Cookie) error
 
 type Digester interface {
-	Start(fn DigestFn, signals ...os.Signal) error
+	Start(fn DigestFn) error
 	Stop()
 }
 
 type digester struct {
 	workers        int
 	workChan       chan []Cookie
+	infoLogger     Logger
+	errorLogger    Logger
+	stopSignals    []os.Signal
 	jar            Jar
 	backoff        Backoff
 	running        atomic.Value
@@ -36,19 +40,19 @@ type digester struct {
 	mux            sync.Mutex
 }
 
-func NewDigester(workers int, jar Jar, backoff Backoff) Digester {
-	d := &digester{
-		workers:  workers,
-		workChan: make(chan []Cookie, workers),
-		jar:      jar,
-		backoff:  backoff,
-	}
+func NewDigester(jar Jar, options ...DigesterOptionFunc) Digester {
+	d := &digester{jar: jar}
 	d.running.Store(false)
+
+	for _, option := range options {
+		option(d)
+	}
+	d.handleDefaults()
 
 	return d
 }
 
-func (d *digester) Start(fn DigestFn, signals ...os.Signal) error {
+func (d *digester) Start(fn DigestFn) error {
 	d.mux.Lock()
 	defer d.mux.Unlock()
 
@@ -60,8 +64,8 @@ func (d *digester) Start(fn DigestFn, signals ...os.Signal) error {
 	d.startWorkers(fn)
 	d.startOrchestrator()
 
-	if len(signals) > 0 {
-		d.waitForSignals(signals...)
+	if len(d.stopSignals) > 0 {
+		d.waitForSignals(d.stopSignals...)
 		d.Stop()
 	}
 
@@ -86,15 +90,14 @@ func (d *digester) startWorkers(fn DigestFn) {
 
 		for cc := range d.workChan {
 			for _, c := range cc {
+				d.infoF("digesting message %s", c.ID())
 				if err := fn(c); err != nil {
-					// todo: send to error channel
-
+					d.errorF("could not digest message %s: %s", c.ID(), err)
 					continue
 				}
 
 				if err := d.jar.Retire(c); err != nil {
-					// todo: send to error channel
-
+					d.errorF("could not retire message %s: %s", c.ID(), err)
 					continue
 				}
 			}
@@ -149,4 +152,16 @@ func (d *digester) waitForSignals(signals ...os.Signal) {
 
 func (d *digester) isRunning() bool {
 	return d.running.Load().(bool)
+}
+
+func (d *digester) infoF(format string, args ...interface{}) {
+	if d.infoLogger != nil {
+		d.infoLogger.Printf(format, args...)
+	}
+}
+
+func (d *digester) errorF(format string, args ...interface{}) {
+	if d.errorLogger != nil {
+		d.errorLogger.Printf(format, args...)
+	}
 }

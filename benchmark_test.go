@@ -27,7 +27,7 @@ func getInitializedDigester(workers int) *digester {
 		return nil
 	}
 
-	d := NewDigester(workers, nil, nil).(*digester)
+	d := NewDigester(nil, SetWorkers(workers)).(*digester)
 	d.startWorkers(digestFn)
 
 	return d
