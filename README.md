@@ -24,11 +24,13 @@ and the information needed to process that work, respectively.
    b) Implementing your own Jar. For this you'll need to create implementations that fit the Jar and Cookie interfaces.
 
     ```golang
+    // Represents a work provider
     type Jar interface {
         Retrieve() ([]Cookie, error) // generate work to distribute amongst the various workers
         Retire(Cookie) error // mark the work as done (e.g., delete a message from a queue after it's been processed)
     }
 
+    // Represents a unit of work
     type Cookie interface {
         ID() string // unique work identifier
         Content() (interface{}, error) // return metadata needed to process the work
