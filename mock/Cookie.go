@@ -8,7 +8,7 @@ type Cookie struct {
 	IDFn      func() string
 	IDInvoked bool
 
-	ContentFn      func() (interface{}, error)
+	ContentFn      func() interface{}
 	ContentInvoked bool
 }
 
@@ -17,7 +17,7 @@ func (c *Cookie) ID() string {
 	return c.IDFn()
 }
 
-func (c *Cookie) Content() (interface{}, error) {
+func (c *Cookie) Content() interface{} {
 	c.ContentInvoked = true
 	return c.ContentFn()
 }

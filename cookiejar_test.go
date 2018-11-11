@@ -17,8 +17,8 @@ func TestCookieJar(t *testing.T) {
 		IDFn: func() string {
 			return "test-cookie"
 		},
-		ContentFn: func() (interface{}, error) {
-			return expectedContent, nil
+		ContentFn: func() interface{} {
+			return expectedContent
 		},
 	}
 
@@ -42,9 +42,7 @@ func TestCookieJar(t *testing.T) {
 	}
 
 	digestFn := func(cookie cookiejar.Cookie) error {
-		got, err := cookie.Content()
-		assertNil(t, err)
-
+		got := cookie.Content()
 		assertEqual(t, expectedContent, got.(string))
 
 		return nil

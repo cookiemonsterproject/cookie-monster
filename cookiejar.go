@@ -11,7 +11,7 @@ import (
 
 type Cookie interface {
 	ID() string
-	Content() (interface{}, error)
+	Content() interface{}
 }
 
 type Jar interface {
