@@ -16,10 +16,10 @@ type Cookie interface {
 
 type Jar interface {
 	Retrieve() ([]Cookie, error)
-	Retire(cookie Cookie) error
+	Retire(Cookie) error
 }
 
-type DigestFn func(cookie Cookie) error
+type DigestFn func(Cookie) error
 
 type Digester interface {
 	Start(fn DigestFn) error
@@ -47,6 +47,7 @@ func NewDigester(jar Jar, options ...DigesterOptionFunc) Digester {
 	for _, option := range options {
 		option(d)
 	}
+	d.infoF("handling defaults")
 	d.handleDefaults()
 
 	return d
@@ -60,11 +61,13 @@ func (d *digester) Start(fn DigestFn) error {
 		return errors.New("digester is already running")
 	}
 
+	d.infoF("starting digester")
 	d.running.Store(true)
 	d.startWorkers(fn)
 	d.startOrchestrator()
 
 	if len(d.stopSignals) > 0 {
+		d.infoF("waiting for OS signals...")
 		d.waitForSignals(d.stopSignals...)
 		d.Stop()
 	}
@@ -76,6 +79,7 @@ func (d *digester) Stop() {
 	d.mux.Lock()
 	defer d.mux.Unlock()
 
+	d.infoF("stopping digester")
 	d.running.Store(false)
 	d.orchestratorWG.Wait()
 	close(d.workChan)
@@ -85,27 +89,33 @@ func (d *digester) Stop() {
 func (d *digester) startWorkers(fn DigestFn) {
 	d.workersWG.Add(d.workers)
 
-	work := func() {
+	work := func(workerID int) {
+		defer d.infoF("worker %d stopping", workerID)
 		defer d.workersWG.Done()
 
 		for cc := range d.workChan {
+			d.infoF("worker %d handling %d messages", workerID, len(cc))
 			for _, c := range cc {
-				d.infoF("digesting message %s", c.ID())
+				d.infoF("worker %d digesting message %s", workerID, c.ID())
 				if err := fn(c); err != nil {
-					d.errorF("could not digest message %s: %s", c.ID(), err)
+					d.errorF("worker %d could not digest message %s: %s", workerID, c.ID(), err)
 					continue
 				}
 
+				d.infoF("worker %d retiring message %s", workerID, c.ID())
 				if err := d.jar.Retire(c); err != nil {
-					d.errorF("could not retire message %s: %s", c.ID(), err)
+					d.errorF("worker %d could not retire message %s: %s", workerID, c.ID(), err)
 					continue
 				}
 			}
 		}
 	}
 
+	d.infoF("starting %d workers", d.workers)
 	for i := 0; i < d.workers; i++ {
-		go work()
+		workerID := i + 1
+		d.infoF("starting worker %d", workerID)
+		go work(workerID)
 	}
 }
 
@@ -113,6 +123,7 @@ func (d *digester) startOrchestrator() {
 	d.orchestratorWG.Add(1)
 
 	orchestrate := func() {
+		defer d.infoF("orchestrator stopping")
 		defer d.orchestratorWG.Done()
 
 		for {
@@ -120,34 +131,38 @@ func (d *digester) startOrchestrator() {
 				break
 			}
 
-			time.Sleep(d.backoff.Current())
+			currBackoff := d.backoff.Current()
+			d.infoF("orchestrator sleeping for %s", currBackoff.String())
+			time.Sleep(currBackoff)
 
+			d.infoF("orchestrator retrieving cookies from jar")
 			cc, err := d.jar.Retrieve()
 			if err != nil {
-				// todo: send to error channel
-
+				d.errorF("orchestrator failed to retrieve from jar: %s", err)
 				continue
 			}
 
 			if len(cc) == 0 {
+				d.infoF("orchestrator found an empty jar")
 				d.backoff.Next()
-
 				continue
 			}
 
 			d.backoff.Reset()
-
+			d.infoF("orchestrator digesting %d cookies", len(cc))
 			d.workChan <- cc
 		}
 	}
 
+	d.infoF("starting orchestrator")
 	go orchestrate()
 }
 
 func (d *digester) waitForSignals(signals ...os.Signal) {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, signals...)
-	<-c
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, signals...)
+	c := <-signalChan
+	d.infoF("signal %s triggered", c)
 }
 
 func (d *digester) isRunning() bool {
