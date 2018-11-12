@@ -32,8 +32,8 @@ and the information needed to process that work, respectively.
 
     // Represents a unit of work
     type Cookie interface {
-        ID() string // unique work identifier
-        Content() (interface{}, error) // return metadata needed to process the work
+        ID() string // work identifier
+        Content() interface{} // return metadata needed to process the work
     }
     ```
 
