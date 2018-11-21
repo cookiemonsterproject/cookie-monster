@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"os/signal"
+	"plugin"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -38,6 +39,25 @@ type digester struct {
 	workersWG      sync.WaitGroup
 	orchestratorWG sync.WaitGroup
 	mux            sync.Mutex
+}
+
+func NewDigesterWithPlugin(jarPath string, options ...DigesterOptionFunc) (Digester, error) {
+	plug, err := plugin.Open(jarPath)
+	if err != nil {
+		return nil, err
+	}
+
+	sym, err := plug.Lookup("Jar")
+	if err != nil {
+		return nil, err
+	}
+
+	jar, ok := sym.(Jar)
+	if !ok {
+		return nil, errors.New("unexpected type from module symbol")
+	}
+
+	return NewDigester(jar, options...), nil
 }
 
 func NewDigester(jar Jar, options ...DigesterOptionFunc) Digester {
@@ -76,9 +96,6 @@ func (d *digester) Start(fn DigestFn) error {
 }
 
 func (d *digester) Stop() {
-	d.mux.Lock()
-	defer d.mux.Unlock()
-
 	d.infoF("stopping digester")
 	d.running.Store(false)
 	d.orchestratorWG.Wait()
