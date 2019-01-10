@@ -11,33 +11,41 @@ func TestConstantBackoff(t *testing.T) {
 	t.Parallel()
 
 	b := cookiejar.ConstantBackoff(time.Second)
-	assertEqual(t, b.Current(), time.Duration(0))
+	iterations := []iteration{
+		{fn: func() {}, expectedCurrent: time.Duration(0)},
+		{fn: b.Next, expectedCurrent: time.Second},
+		{fn: b.Next, expectedCurrent: time.Second},
+		{fn: b.Next, expectedCurrent: time.Second},
+		{fn: b.Reset, expectedCurrent: time.Duration(0)},
+	}
 
-	b.Next()
-	assertEqual(t, b.Current(), time.Second)
-
-	b.Next()
-	assertEqual(t, b.Current(), time.Second)
-
-	b.Reset()
-	assertEqual(t, b.Current(), time.Duration(0))
+	testIterations(t, b.Current, iterations...)
 }
 
 func TestExponentialBackoff(t *testing.T) {
 	t.Parallel()
 
 	b := cookiejar.ExponentialBackoff(2, time.Second)
-	assertEqual(t, b.Current(), time.Duration(0))
+	iterations := []iteration{
+		{fn: func() {}, expectedCurrent: time.Duration(0)},
+		{fn: b.Next, expectedCurrent: time.Second},
+		{fn: b.Next, expectedCurrent: time.Second * 2},
+		{fn: b.Next, expectedCurrent: time.Second * 2},
+		{fn: b.Next, expectedCurrent: time.Second * 2},
+		{fn: b.Reset, expectedCurrent: time.Duration(0)},
+	}
 
-	b.Next()
-	assertEqual(t, b.Current(), time.Second)
+	testIterations(t, b.Current, iterations...)
+}
 
-	b.Next()
-	assertEqual(t, b.Current(), time.Second*2)
+type iteration struct {
+	fn              func()
+	expectedCurrent time.Duration
+}
 
-	b.Next()
-	assertEqual(t, b.Current(), time.Second*2)
-
-	b.Reset()
-	assertEqual(t, b.Current(), time.Duration(0))
+func testIterations(t *testing.T, getCurrent func() time.Duration, iterations ...iteration) {
+	for _, it := range iterations {
+		it.fn()
+		assertEqual(t, getCurrent(), it.expectedCurrent)
+	}
 }
