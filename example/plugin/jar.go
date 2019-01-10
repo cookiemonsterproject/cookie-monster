@@ -48,3 +48,7 @@ func (c c) ID() string {
 func (c c) Content() interface{} {
 	return c.content
 }
+
+func (c c) Metadata() map[string]string {
+	return nil
+}

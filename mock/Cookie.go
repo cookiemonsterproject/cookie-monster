@@ -10,6 +10,9 @@ type Cookie struct {
 
 	ContentFn      func() interface{}
 	ContentInvoked bool
+
+	MetadataFn      func() map[string]string
+	MetadataInvoked bool
 }
 
 func (c *Cookie) ID() string {
@@ -20,4 +23,9 @@ func (c *Cookie) ID() string {
 func (c *Cookie) Content() interface{} {
 	c.ContentInvoked = true
 	return c.ContentFn()
+}
+
+func (c *Cookie) Metadata() map[string]string {
+	c.MetadataInvoked = true
+	return c.MetadataFn()
 }

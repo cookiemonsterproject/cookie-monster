@@ -13,6 +13,7 @@ import (
 type Cookie interface {
 	ID() string
 	Content() interface{}
+	Metadata() map[string]string
 }
 
 type Jar interface {
