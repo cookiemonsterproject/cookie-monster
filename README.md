@@ -26,14 +26,15 @@ and the information needed to process that work, respectively.
     ```golang
     // Represents a work provider
     type Jar interface {
-        Retrieve() ([]Cookie, error) // generate work to distribute amongst the various workers
-        Retire(Cookie) error // mark the work as done (e.g., delete a message from a queue after it's been processed)
+        Retrieve() ([]Cookie, error) // generate a unit of work to distribute amongst the various workers
+        Retire(Cookie) error         // mark the work as done (e.g., delete a message from a queue after it's been processed)
     }
 
     // Represents a unit of work
     type Cookie interface {
-        ID() string // work identifier
-        Content() interface{} // return metadata needed to process the work
+        ID() string                  // work identifier
+        Content() interface{}        // data needed to process the work
+        Metadata() map[string]string // optional map of metadata related to the work
     }
     ```
 
