@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/cookiejars/cookiejar.svg?branch=master)](https://travis-ci.org/cookiejars/cookiejar)
 [![GolangCI](https://golangci.com/badges/github.com/cookiejars/cookiejar.svg)](https://golangci.com/r/github.com/cookiejars/cookiejar)
+[![codecov](https://codecov.io/gh/cookiejars/cookiejar/branch/master/graph/badge.svg)](https://codecov.io/gh/cookiejars/cookiejar)
 [![Go Report Card](https://goreportcard.com/badge/github.com/cookiejars/cookiejar)](https://goreportcard.com/report/github.com/cookiejars/cookiejar)
 
 ## Purpose
