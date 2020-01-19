@@ -2,10 +2,10 @@ package cookiemonster
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/signal"
 	"plugin"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -190,12 +190,12 @@ func (d *digester) isRunning() bool {
 
 func (d *digester) infoF(format string, args ...interface{}) {
 	if d.infoLogger != nil {
-		d.infoLogger.Printf(strings.Join([]string{"[INFO]", format}, " "), args...)
+		d.infoLogger.Printf(fmt.Sprintf("[INFO] %s", format), args...)
 	}
 }
 
 func (d *digester) errorF(format string, args ...interface{}) {
 	if d.errorLogger != nil {
-		d.errorLogger.Printf(strings.Join([]string{"[ERROR]", format}, " "), args...)
+		d.errorLogger.Printf(fmt.Sprintf("[ERROR] %s", format), args...)
 	}
 }

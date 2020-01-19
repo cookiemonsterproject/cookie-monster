@@ -10,7 +10,7 @@ import (
 
 func digestFn() cookiemonster.DigestFn {
 	return func(cookie cookiemonster.Cookie) error {
-		fmt.Println(cookie.Content().(string))
+		fmt.Printf("Cookie's content: %s\n", cookie.Content().(string))
 		return nil
 	}
 }
