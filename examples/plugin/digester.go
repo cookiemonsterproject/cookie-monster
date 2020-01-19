@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/cookiejars/cookie-monster"
+	"github.com/cookiemonsterproject/cookie-monster"
 )
 
 func digestFn() cookiemonster.DigestFn {

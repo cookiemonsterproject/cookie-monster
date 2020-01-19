@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cookiejars/cookie-monster"
+	"github.com/cookiemonsterproject/cookie-monster"
 )
 
 // Jar is the plugin's exported symbol

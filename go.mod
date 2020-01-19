@@ -1,3 +1,3 @@
-module github.com/cookiejars/cookie-monster
+module github.com/cookiemonsterproject/cookie-monster
 
 go 1.13

@@ -1,6 +1,6 @@
 package mock
 
-import "github.com/cookiejars/cookiemonster"
+import "github.com/cookiemonsterproject/cookie-monster"
 
 var _ cookiemonster.Cookie = &Cookie{}
 

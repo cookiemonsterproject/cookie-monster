@@ -3,7 +3,7 @@ package mock
 import (
 	"time"
 
-	"github.com/cookiejars/cookiemonster"
+	"github.com/cookiemonsterproject/cookie-monster"
 )
 
 var _ cookiemonster.Backoff = &Backoff{}

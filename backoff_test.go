@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cookiejars/cookie-monster"
+	"github.com/cookiemonsterproject/cookie-monster"
 )
 
 func TestConstantBackoff(t *testing.T) {

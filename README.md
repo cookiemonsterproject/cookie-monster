@@ -1,9 +1,9 @@
 # CookieMonster
 
-[![Build Status](https://travis-ci.org/cookiejars/cookie-monster.svg?branch=master)](https://travis-ci.org/cookiejars/cookie-monster)
-[![GolangCI](https://golangci.com/badges/github.com/cookiejars/cookie-monster.svg)](https://golangci.com/r/github.com/cookiejars/cookie-monster)
-[![codecov](https://codecov.io/gh/cookiejars/cookie-monster/branch/master/graph/badge.svg)](https://codecov.io/gh/cookiejars/cookie-monster)
-[![Go Report Card](https://goreportcard.com/badge/github.com/cookiejars/cookie-monster)](https://goreportcard.com/report/github.com/cookiejars/cookie-monster)
+[![Build Status](https://travis-ci.org/cookiemonsterproject/cookie-monster.svg?branch=master)](https://travis-ci.org/cookiemonsterproject/cookie-monster)
+[![GolangCI](https://golangci.com/badges/github.com/cookiemonsterproject/cookie-monster.svg)](https://golangci.com/r/github.com/cookiemonsterproject/cookie-monster)
+[![codecov](https://codecov.io/gh/cookiemonsterproject/cookie-monster/branch/master/graph/badge.svg)](https://codecov.io/gh/cookiemonsterproject/cookie-monster)
+[![Go Report Card](https://goreportcard.com/badge/github.com/cookiemonsterproject/cookie-monster)](https://goreportcard.com/report/github.com/cookiemonsterproject/cookie-monster)
 
 ## Purpose
 
@@ -16,11 +16,11 @@ and the information needed to process that work, respectively.
 
 1. Add CookieMonster to your project:
 
-   `go get -u github.com/cookiejars/cookie-monster`
+   `go get -u github.com/cookiemonsterproject/cookie-monster`
 
 2. Setup your Jar, by either:
 
-   a) [Checking](https://github.com/cookiejars) if there's already an implementation that fits your usecase.
+   a) [Checking](https://github.com/cookiemonsterproject) if there's already an implementation that fits your usecase.
 
    b) Implementing your own Jar. For this you'll need to create implementations that fit the Jar and Cookie interfaces.
 
@@ -80,13 +80,13 @@ and the information needed to process that work, respectively.
 
 ## Examples
 
-Check the [examples](https://github.com/cookiejars/cookie-monster/tree/master/examples) folder.
+Check the [examples](https://github.com/cookiemonsterproject/cookie-monster/tree/master/examples) folder.
 
 ## Contributing
 
 This project aims to be generic and fit as much cases as possible. This will only be possible if you share your
 specific usecase to help identify where the project is still lacking.
 
-To ease discovery, I'd love to have [github.com/cookiejars](https://github.com/cookiejars) as the main place to go to
-find the existent implementations, so if you wish to contribute feel free to [open an issue](https://github.com/cookiejars/cookie-monster/issues/new) or
+To ease discovery, I'd love to have [github.com/cookiemonsterproject](https://github.com/cookiemonsterproject) as the main place to go to
+find the existent implementations, so if you wish to contribute feel free to [open an issue](https://github.com/cookiemonsterproject/cookie-monster/issues/new) or
 [DM me](https://gophers.slack.com/team/U6FQ0K82K) on the Gophers' Slack.
