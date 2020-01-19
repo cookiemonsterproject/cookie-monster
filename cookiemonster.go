@@ -109,21 +109,21 @@ func (d *digester) startWorkers(fn DigestFn) {
 	d.workersWG.Add(d.workers)
 
 	work := func(workerID int) {
-		defer d.infoF("worker %d stopping", workerID)
+		defer d.infoF("worker %d: stopping", workerID)
 		defer d.workersWG.Done()
 
 		for cc := range d.workChan {
-			d.infoF("worker %d handling %d messages", workerID, len(cc))
+			d.infoF("worker %d: handling %d messages", workerID, len(cc))
 			for _, c := range cc {
-				d.infoF("worker %d digesting message %s", workerID, c.ID())
+				d.infoF("worker %d: digesting message %s", workerID, c.ID())
 				if err := fn(c); err != nil {
-					d.errorF("worker %d could not digest message %s: %s", workerID, c.ID(), err)
+					d.errorF("worker %d: could not digest message %s: %s", workerID, c.ID(), err)
 					continue
 				}
 
-				d.infoF("worker %d retiring message %s", workerID, c.ID())
+				d.infoF("worker %d: retiring message %s", workerID, c.ID())
 				if err := d.jar.Retire(c); err != nil {
-					d.errorF("worker %d could not retire message %s: %s", workerID, c.ID(), err)
+					d.errorF("worker %d: could not retire message %s: %s", workerID, c.ID(), err)
 					continue
 				}
 			}
@@ -142,7 +142,7 @@ func (d *digester) startOrchestrator() {
 	d.orchestratorWG.Add(1)
 
 	orchestrate := func() {
-		defer d.infoF("orchestrator stopping")
+		defer d.infoF("orchestrator: stopping")
 		defer d.orchestratorWG.Done()
 
 		for {
@@ -151,24 +151,24 @@ func (d *digester) startOrchestrator() {
 			}
 
 			currBackoff := d.backoff.Current()
-			d.infoF("orchestrator sleeping for %s", currBackoff.String())
+			d.infoF("orchestrator: sleeping for %s", currBackoff.String())
 			time.Sleep(currBackoff)
 
-			d.infoF("orchestrator retrieving cookies from jar")
+			d.infoF("orchestrator: retrieving cookies from jar")
 			cc, err := d.jar.Retrieve()
 			if err != nil {
-				d.errorF("orchestrator failed to retrieve from jar: %s", err)
+				d.errorF("orchestrator: failed to retrieve from jar: %s", err)
 				continue
 			}
 
 			if len(cc) == 0 {
-				d.infoF("orchestrator found an empty jar")
+				d.infoF("orchestrator: found an empty jar")
 				d.backoff.Next()
 				continue
 			}
 
 			d.backoff.Reset()
-			d.infoF("orchestrator digesting %d cookies", len(cc))
+			d.infoF("orchestrator: digesting %d cookies", len(cc))
 			d.workChan <- cc
 		}
 	}
