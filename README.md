@@ -27,7 +27,7 @@ and the information needed to process that work, respectively.
     ```golang
     // Represents a work provider
     type Jar interface {
-        Retrieve() ([]Cookie, error) // generate a unit of work to distribute amongst the various workers
+        Retrieve() ([]Cookie, error) // generate units of work to distribute amongst the various workers
         Retire(Cookie) error         // mark the work as done (e.g., delete a message from a queue after it's been processed)
     }
 
@@ -42,7 +42,7 @@ and the information needed to process that work, respectively.
    _Please consider sharing your implementation as an open-source project and help this baby grow
    (check [Contributing](#contributing))._
 
-3. Initialize the pool:
+3. Configure the pool:
 
     ```golang
     digester := cookiemonster.NewDigester(jar)

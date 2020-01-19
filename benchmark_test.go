@@ -22,12 +22,12 @@ func BenchmarkDigester(b *testing.B) {
 	}
 }
 
-func getInitializedDigester(workers int) *digester {
+func getInitializedDigester(workers int) *Digester {
 	digestFn := func(cookie Cookie) error {
 		return nil
 	}
 
-	d := NewDigester(nil, SetWorkers(workers)).(*digester)
+	d := NewDigester(nil, SetWorkers(workers))
 	d.startWorkers(digestFn)
 
 	return d

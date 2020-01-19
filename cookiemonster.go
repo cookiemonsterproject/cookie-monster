@@ -2,7 +2,6 @@ package cookiemonster
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"os/signal"
 	"plugin"
@@ -11,25 +10,29 @@ import (
 	"time"
 )
 
+// Cookie represents a unit of work
 type Cookie interface {
+	// work identifier
 	ID() string
+	// data needed to process the work
 	Content() interface{}
+	// optional map of metadata related to the work
 	Metadata() map[string]string
 }
 
+// Jar represents a work provider
 type Jar interface {
+	// generate units of work to distribute amongst the various workers
 	Retrieve() ([]Cookie, error)
+	// mark the work as done (e.g., delete a message from a queue after it's been processed)
 	Retire(Cookie) error
 }
 
+// DigestFn represents the function that handles the work
 type DigestFn func(Cookie) error
 
-type Digester interface {
-	Start(fn DigestFn) error
-	Stop()
-}
-
-type digester struct {
+// Digester handles the work orchestration
+type Digester struct {
 	workers        int
 	workChan       chan []Cookie
 	infoLogger     Logger
@@ -43,7 +46,8 @@ type digester struct {
 	mux            sync.Mutex
 }
 
-func NewDigesterWithPlugin(jarPath string, options ...DigesterOptionFunc) (Digester, error) {
+// NewDigesterWithPlugin creates a new Digester with a Jar from a plugin
+func NewDigesterWithPlugin(jarPath string, options ...DigesterOptionFunc) (*Digester, error) {
 	plug, err := plugin.Open(jarPath)
 	if err != nil {
 		return nil, err
@@ -62,8 +66,9 @@ func NewDigesterWithPlugin(jarPath string, options ...DigesterOptionFunc) (Diges
 	return NewDigester(jar, options...), nil
 }
 
-func NewDigester(jar Jar, options ...DigesterOptionFunc) Digester {
-	d := &digester{jar: jar}
+// NewDigesterWithPlugin creates a new Digester with a Jar
+func NewDigester(jar Jar, options ...DigesterOptionFunc) *Digester {
+	d := &Digester{jar: jar}
 	d.running.Store(false)
 
 	for _, option := range options {
@@ -75,7 +80,8 @@ func NewDigester(jar Jar, options ...DigesterOptionFunc) Digester {
 	return d
 }
 
-func (d *digester) Start(fn DigestFn) error {
+// Start initiates the worker pool
+func (d *Digester) Start(fn DigestFn) error {
 	d.mux.Lock()
 	defer d.mux.Unlock()
 
@@ -97,7 +103,8 @@ func (d *digester) Start(fn DigestFn) error {
 	return nil
 }
 
-func (d *digester) Stop() {
+// Stop handles the graceful shutdown of the worker pool
+func (d *Digester) Stop() {
 	d.infoF("stopping digester")
 	d.running.Store(false)
 	d.orchestratorWG.Wait()
@@ -105,7 +112,7 @@ func (d *digester) Stop() {
 	d.workersWG.Wait()
 }
 
-func (d *digester) startWorkers(fn DigestFn) {
+func (d *Digester) startWorkers(fn DigestFn) {
 	d.workersWG.Add(d.workers)
 
 	work := func(workerID int) {
@@ -138,7 +145,7 @@ func (d *digester) startWorkers(fn DigestFn) {
 	}
 }
 
-func (d *digester) startOrchestrator() {
+func (d *Digester) startOrchestrator() {
 	d.orchestratorWG.Add(1)
 
 	orchestrate := func() {
@@ -177,25 +184,29 @@ func (d *digester) startOrchestrator() {
 	go orchestrate()
 }
 
-func (d *digester) waitForSignals(signals ...os.Signal) {
+func (d *Digester) waitForSignals(signals ...os.Signal) {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, signals...)
 	c := <-signalChan
 	d.infoF("signal %s triggered", c)
 }
 
-func (d *digester) isRunning() bool {
+func (d *Digester) isRunning() bool {
 	return d.running.Load().(bool)
 }
 
-func (d *digester) infoF(format string, args ...interface{}) {
-	if d.infoLogger != nil {
-		d.infoLogger.Printf(fmt.Sprintf("[INFO] %s", format), args...)
+func (d *Digester) infoF(format string, args ...interface{}) {
+	if d.infoLogger == nil {
+		return
 	}
+
+	d.infoLogger.Printf("[INFO] "+format, args...)
 }
 
-func (d *digester) errorF(format string, args ...interface{}) {
-	if d.errorLogger != nil {
-		d.errorLogger.Printf(fmt.Sprintf("[ERROR] %s", format), args...)
+func (d *Digester) errorF(format string, args ...interface{}) {
+	if d.errorLogger == nil {
+		return
 	}
+
+	d.errorLogger.Printf("[ERROR] "+format, args...)
 }
