@@ -16,7 +16,7 @@ and the information needed to process that work, respectively.
 
 1. Add CookieMonster to your project:
 
-   `go get -u github.com/cookiejars/cookiemonster`
+   `go get -u github.com/cookiejars/cookie-monster`
 
 2. Setup your Jar, by either:
 
@@ -78,11 +78,15 @@ and the information needed to process that work, respectively.
 
    On the other hand, if you did pass them, this will be automatically called once any of them is triggered.
 
+## Examples
+
+Check the [examples](https://github.com/cookiejars/cookie-monster/tree/master/examples) folder.
+
 ## Contributing
 
 This project aims to be generic and fit as much cases as possible. This will only be possible if you share your
 specific usecase to help identify where the project is still lacking.
 
 To ease discovery, I'd love to have [github.com/cookiejars](https://github.com/cookiejars) as the main place to go to
-find the existent implementations, so if you wish to contribute feel free to [open an issue](https://github.com/cookiejars/cookiemonster/issues/new) or
+find the existent implementations, so if you wish to contribute feel free to [open an issue](https://github.com/cookiejars/cookie-monster/issues/new) or
 [DM me](https://gophers.slack.com/team/U6FQ0K82K) on the Gophers' Slack.

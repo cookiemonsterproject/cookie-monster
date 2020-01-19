@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cookiejars/cookiemonster"
-	"github.com/cookiejars/cookiemonster/mock"
+	"github.com/cookiejars/cookie-monster"
+	"github.com/cookiejars/cookie-monster/mock"
 )
 
 func TestCookieJar(t *testing.T) {
