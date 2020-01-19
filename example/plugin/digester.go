@@ -5,11 +5,11 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/cookiejars/cookiejar"
+	"github.com/cookiejars/cookiemonster"
 )
 
-func digestFn() cookiejar.DigestFn {
-	return func(cookie cookiejar.Cookie) error {
+func digestFn() cookiemonster.DigestFn {
+	return func(cookie cookiemonster.Cookie) error {
 		fmt.Println(cookie.Content().(string))
 		return nil
 	}
@@ -21,11 +21,11 @@ func main() {
 		panic(err)
 	}
 
-	dig, err := cookiejar.NewDigesterWithPlugin(
+	dig, err := cookiemonster.NewDigesterWithPlugin(
 		path,
-		cookiejar.SetInfoLog(infoLogger{}),
-		cookiejar.SetErrorLog(errorLogger{}),
-		cookiejar.SetStopSignals(syscall.SIGINT),
+		cookiemonster.SetInfoLog(infoLogger{}),
+		cookiemonster.SetErrorLog(errorLogger{}),
+		cookiemonster.SetStopSignals(syscall.SIGINT),
 	)
 	if err != nil {
 		panic(err)

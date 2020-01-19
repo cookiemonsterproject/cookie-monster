@@ -3,10 +3,10 @@ package mock
 import (
 	"time"
 
-	"github.com/cookiejars/cookiejar"
+	"github.com/cookiejars/cookiemonster"
 )
 
-var _ cookiejar.Backoff = &Backoff{}
+var _ cookiemonster.Backoff = &Backoff{}
 
 type Backoff struct {
 	NextFn      func()

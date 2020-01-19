@@ -1,4 +1,4 @@
-package cookiejar
+package cookiemonster
 
 import (
 	"sync"

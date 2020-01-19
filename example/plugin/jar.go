@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cookiejars/cookiejar"
+	"github.com/cookiejars/cookiemonster"
 )
 
 // Jar is the plugin's exported symbol
@@ -12,7 +12,7 @@ var Jar jar
 
 type jar struct{}
 
-func (j jar) Retrieve() ([]cookiejar.Cookie, error) {
+func (j jar) Retrieve() ([]cookiemonster.Cookie, error) {
 	// simulate a real system
 	if time.Now().Second()%2 == 0 {
 		return nil, nil
@@ -21,11 +21,11 @@ func (j jar) Retrieve() ([]cookiejar.Cookie, error) {
 	return getCookies(), nil
 }
 
-func (jar) Retire(cookiejar.Cookie) error {
+func (jar) Retire(cookiemonster.Cookie) error {
 	return nil
 }
 
-func getCookies() []cookiejar.Cookie {
+func getCookies() []cookiemonster.Cookie {
 	now := time.Now()
 
 	cookie := c{
@@ -33,7 +33,7 @@ func getCookies() []cookiejar.Cookie {
 		content: now.String(),
 	}
 
-	return []cookiejar.Cookie{cookie}
+	return []cookiemonster.Cookie{cookie}
 }
 
 type c struct {

@@ -1,23 +1,23 @@
 package mock
 
-import "github.com/cookiejars/cookiejar"
+import "github.com/cookiejars/cookiemonster"
 
-var _ cookiejar.Jar = &Jar{}
+var _ cookiemonster.Jar = &Jar{}
 
 type Jar struct {
-	RetrieveFn      func() ([]cookiejar.Cookie, error)
+	RetrieveFn      func() ([]cookiemonster.Cookie, error)
 	RetrieveInvoked bool
 
-	RetireFn      func(cookie cookiejar.Cookie) error
+	RetireFn      func(cookie cookiemonster.Cookie) error
 	RetireInvoked bool
 }
 
-func (j *Jar) Retrieve() ([]cookiejar.Cookie, error) {
+func (j *Jar) Retrieve() ([]cookiemonster.Cookie, error) {
 	j.RetrieveInvoked = true
 	return j.RetrieveFn()
 }
 
-func (j *Jar) Retire(cookie cookiejar.Cookie) error {
+func (j *Jar) Retire(cookie cookiemonster.Cookie) error {
 	j.RetireInvoked = true
 	return j.RetireFn(cookie)
 }

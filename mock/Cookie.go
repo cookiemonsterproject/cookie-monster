@@ -1,8 +1,8 @@
 package mock
 
-import "github.com/cookiejars/cookiejar"
+import "github.com/cookiejars/cookiemonster"
 
-var _ cookiejar.Cookie = &Cookie{}
+var _ cookiemonster.Cookie = &Cookie{}
 
 type Cookie struct {
 	IDFn      func() string

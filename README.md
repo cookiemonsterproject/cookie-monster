@@ -1,4 +1,4 @@
-# CookieJar
+# CookieMonster
 
 [![Build Status](https://travis-ci.org/cookiejars/cookiejar.svg?branch=master)](https://travis-ci.org/cookiejars/cookiejar)
 [![GolangCI](https://golangci.com/badges/github.com/cookiejars/cookiejar.svg)](https://golangci.com/r/github.com/cookiejars/cookiejar)
@@ -7,16 +7,16 @@
 
 ## Purpose
 
-CookieJar is a flexible worker pool that can be adapted to fit (almost) any usecase.
+CookieMonster is a flexible worker pool that can be adapted to fit (almost) any usecase.
 
 This is accomplished with the use of _Jars_ and _Cookies_. These are simply interfaces that represent a work provider
 and the information needed to process that work, respectively.
 
 ## Usage
 
-1. Add CookieJar to your project:
+1. Add CookieMonster to your project:
 
-   `go get -u github.com/cookiejars/cookiejar`
+   `go get -u github.com/cookiejars/cookiemonster`
 
 2. Setup your Jar, by either:
 
@@ -45,7 +45,7 @@ and the information needed to process that work, respectively.
 3. Initialize the pool:
 
     ```golang
-    digester := cookiejar.NewDigester(jar)
+    digester := cookiemonster.NewDigester(jar)
     ```
 
     Optionally, you can also pass a list of options to tweak how the digester works internally.
@@ -66,7 +66,7 @@ and the information needed to process that work, respectively.
     digester.Start(digestFn)
     ```
 
-    Here you have to pass the function used to process the work, in the form of: `func(cookie cookiejar.Cookie) error`.
+    Here you have to pass the function used to process the work, in the form of: `func(cookie cookiemonster.Cookie) error`.
 
 5. Stop the pool (optional):
 
@@ -84,5 +84,5 @@ This project aims to be generic and fit as much cases as possible. This will onl
 specific usecase to help identify where the project is still lacking.
 
 To ease discovery, I'd love to have [github.com/cookiejars](https://github.com/cookiejars) as the main place to go to
-find the existent implementations, so if you wish to contribute feel free to [open an issue](https://github.com/cookiejars/cookiejar/issues/new) or
+find the existent implementations, so if you wish to contribute feel free to [open an issue](https://github.com/cookiejars/cookiemonster/issues/new) or
 [DM me](https://gophers.slack.com/team/U6FQ0K82K) on the Gophers' Slack.

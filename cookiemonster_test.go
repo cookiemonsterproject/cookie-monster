@@ -1,12 +1,12 @@
-package cookiejar_test
+package cookiemonster_test
 
 import (
 	"sync/atomic"
 	"testing"
 	"time"
 
-	"github.com/cookiejars/cookiejar"
-	"github.com/cookiejars/cookiejar/mock"
+	"github.com/cookiejars/cookiemonster"
+	"github.com/cookiejars/cookiemonster/mock"
 )
 
 func TestCookieJar(t *testing.T) {
@@ -23,13 +23,13 @@ func TestCookieJar(t *testing.T) {
 	}
 
 	var cookies atomic.Value
-	cookies.Store([]cookiejar.Cookie{mockCookie})
+	cookies.Store([]cookiemonster.Cookie{mockCookie})
 	mockJar := &mock.Jar{
-		RetrieveFn: func() ([]cookiejar.Cookie, error) {
-			return cookies.Load().([]cookiejar.Cookie), nil
+		RetrieveFn: func() ([]cookiemonster.Cookie, error) {
+			return cookies.Load().([]cookiemonster.Cookie), nil
 		},
-		RetireFn: func(cookie cookiejar.Cookie) error {
-			cookies.Store([]cookiejar.Cookie{})
+		RetireFn: func(cookie cookiemonster.Cookie) error {
+			cookies.Store([]cookiemonster.Cookie{})
 			return nil
 		},
 	}
@@ -41,14 +41,14 @@ func TestCookieJar(t *testing.T) {
 		ResetFn: func() {},
 	}
 
-	digestFn := func(cookie cookiejar.Cookie) error {
+	digestFn := func(cookie cookiemonster.Cookie) error {
 		got := cookie.Content()
 		assertEqual(t, expectedContent, got.(string))
 
 		return nil
 	}
 
-	d := cookiejar.NewDigester(mockJar, cookiejar.SetWorkers(1), cookiejar.SetBackoff(mockBackoff))
+	d := cookiemonster.NewDigester(mockJar, cookiemonster.SetWorkers(1), cookiemonster.SetBackoff(mockBackoff))
 	err := d.Start(digestFn)
 	assertNil(t, err)
 

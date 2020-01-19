@@ -1,16 +1,16 @@
-package cookiejar_test
+package cookiemonster_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/cookiejars/cookiejar"
+	"github.com/cookiejars/cookiemonster"
 )
 
 func TestConstantBackoff(t *testing.T) {
 	t.Parallel()
 
-	b := cookiejar.ConstantBackoff(time.Second)
+	b := cookiemonster.ConstantBackoff(time.Second)
 	iterations := []iteration{
 		{fn: func() {}, expectedCurrent: time.Duration(0)},
 		{fn: b.Next, expectedCurrent: time.Second},
@@ -25,7 +25,7 @@ func TestConstantBackoff(t *testing.T) {
 func TestExponentialBackoff(t *testing.T) {
 	t.Parallel()
 
-	b := cookiejar.ExponentialBackoff(2, time.Second)
+	b := cookiemonster.ExponentialBackoff(2, time.Second)
 	iterations := []iteration{
 		{fn: func() {}, expectedCurrent: time.Duration(0)},
 		{fn: b.Next, expectedCurrent: time.Second},
