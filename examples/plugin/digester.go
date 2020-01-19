@@ -31,8 +31,7 @@ func main() {
 		panic(err)
 	}
 
-	err = dig.Start(digestFn())
-	if err != nil {
+	if err = dig.Start(digestFn()); err != nil {
 		panic(err)
 	}
 }
