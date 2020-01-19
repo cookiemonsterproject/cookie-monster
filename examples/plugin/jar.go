@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/cookiemonsterproject/cookie-monster"
@@ -13,8 +14,8 @@ var Jar jar
 type jar struct{}
 
 func (j jar) Retrieve() ([]cookiemonster.Cookie, error) {
-	// simulate a real system
-	if time.Now().Second()%2 == 0 {
+	// try to simulate a real system
+	if time.Now().Nanosecond()%2 == 0 {
 		return nil, nil
 	}
 
@@ -26,14 +27,19 @@ func (jar) Retire(cookiemonster.Cookie) error {
 }
 
 func getCookies() []cookiemonster.Cookie {
-	now := time.Now()
+	cookies := make([]cookiemonster.Cookie, rand.Intn(10))
 
-	cookie := c{
-		id:      fmt.Sprintf("id-%d", now.Unix()),
-		content: now.String(),
+	for i, _ := range cookies {
+		now := time.Now()
+		cookie := c{
+			id:      fmt.Sprintf("id-%d", now.Unix()),
+			content: now.String(),
+		}
+
+		cookies[i] = cookie
 	}
 
-	return []cookiemonster.Cookie{cookie}
+	return cookies
 }
 
 type c struct {
