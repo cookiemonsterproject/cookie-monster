@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -15,8 +16,13 @@ type jar struct{}
 
 func (j jar) Retrieve() ([]cookiemonster.Cookie, error) {
 	// try to simulate a real system
-	if time.Now().Nanosecond()%2 == 0 {
+	n := rand.Intn(100)
+	if n < 25 {
 		return nil, nil
+	}
+
+	if n < 50 {
+		return nil, errors.New("failed to retrieve")
 	}
 
 	return getCookies(), nil
